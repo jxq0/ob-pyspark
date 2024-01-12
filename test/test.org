@@ -1,0 +1,6 @@
+* test
+#+begin_src pyspark :csv_files '("a" "b")
+select
+#+end_src
+
+#+RESULTS:
