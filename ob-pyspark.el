@@ -65,7 +65,28 @@ def run():
 run()
 ")
 
+(defconst org-babel-pyspark--test "
+import os
+
+def init_spark():
+    from pyspark.sql import SparkSession
+    from pyspark.sql import functions as F
+
+    session = (
+        SparkSession.builder.master('local[5]')
+        .config('spark.driver.bindAddress', 'localhost')
+        .getOrCreate()
+    )
+
+    return session
+
+spark = init_spark()
+print(sql)
+")
+
 (defun org-babel-execute:pyspark (body params)
   (-let* (((&alist :csv_files :csv_files_map) params)
-          (new-params (append params (list (list :var 'sql body)))))
-    (jxq-pp new-params)))
+          (new-params (append params (list (list :var 'sql body)
+                                           (cons :session "pyspark")))))
+    (jxq-pp new-params)
+    (org-babel-execute:python org-babel-pyspark--test new-params)))
