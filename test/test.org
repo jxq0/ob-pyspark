@@ -1,10 +1,11 @@
 * test
-#+begin_src pyspark :csv_files '("a" "b") :session pyspark
-select * from x
+#+begin_src pyspark :csv_files '("da" "b") :session pyspark1 :results output
+select * from xs
 #+end_src
 
 #+RESULTS:
-: None
+: select * from xs
+: ['da', 'b']
 
 #+begin_src python :results silent :session pyspark :var sql="wer" :var x="er"
 print(sql)
