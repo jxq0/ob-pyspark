@@ -80,13 +80,11 @@ def init_spark():
 
     return session
 
-spark = init_spark()
+# spark = init_spark()
 print(sql)
 ")
 
 (defun org-babel-execute:pyspark (body params)
   (-let* (((&alist :csv_files :csv_files_map) params)
-          (new-params (append params (list (list :var 'sql body)
-                                           (cons :session "pyspark")))))
-    (jxq-pp new-params)
+          (new-params (cons (cons :var (cons 'sql body)) params)))
     (org-babel-execute:python org-babel-pyspark--test new-params)))

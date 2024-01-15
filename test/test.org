@@ -1,7 +1,11 @@
 * test
-#+begin_src pyspark :csv_files '("a" "b")
-select
+#+begin_src pyspark :csv_files '("a" "b") :session pyspark
+wer
 #+end_src
 
 #+RESULTS:
 : None
+
+#+begin_src python :results silent :session pyspark :var sql="wer" :var x="er"
+print(sql)
+#+end_src
