@@ -88,3 +88,7 @@ print(sql)
   (-let* (((&alist :csv_files :csv_files_map) params)
           (new-params (cons (cons :var (cons 'sql body)) params)))
     (org-babel-execute:python org-babel-pyspark--test new-params)))
+
+(define-derived-mode pyspark-mode
+  sql-mode "pyspark"
+  "Major mode for pyspark sql.")
