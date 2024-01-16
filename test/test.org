@@ -1,12 +1,33 @@
 * test
-#+begin_src pyspark :csv_files '("da" "b") :session pyspark1 :results output
-select * from xs
+#+begin_src pyspark :csv_files '("Details.csv") :session pyspark :results value
+select
+    `Category`,
+    count(*)
+from Details group by `Category`
 #+end_src
 
 #+RESULTS:
-: select * from xs
-: ['da', 'b']
+| Category    | count(1) |
+|-------------+----------|
+| Electronics |      308 |
+| Clothing    |      949 |
+| Furniture   |      243 |
 
-#+begin_src python :results silent :session pyspark :var sql="wer" :var x="er"
+#+begin_src pyspark :csv_files '("Details.csv") :session pyspark :results value
+desc Details
+#+end_src
+
+#+RESULTS:
+| col_name     | data_type | comment |
+|--------------+-----------+---------|
+| Order ID     | string    | None    |
+| Amount       | int       | None    |
+| Profit       | int       | None    |
+| Quantity     | int       | None    |
+| Category     | string    | None    |
+| Sub-Category | string    | None    |
+| PaymentMode  | string    | None    |
+
+#+begin_src python :results silent :session pyspark :var sql="wer" :var x='("er" "ewio")
 print(sql)
 #+end_src

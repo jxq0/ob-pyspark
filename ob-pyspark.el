@@ -65,18 +65,24 @@ def run():
 run()
 ")
 
-(defconst org-babel-pyspark--test "
-print(sql)
-print(csv_files)
-")
+(defcustom ob-pyspark-main-file nil
+  "The python code to run."
+  :type 'string
+  :group 'ob-pyspark)
 
 (defun org-babel-execute:pyspark (body params)
   (-let* (((&alist :csv_files :csv_files_map) params)
-          (new-params (append (list (cons :var (cons 'sql body))
-                                    (cons :var (cons 'csv_files csv_files))
-                                    (cons :var (cons 'csv_files_map csv_files_map)))
-                              params)))
-    (org-babel-execute:python org-babel-pyspark--test new-params)))
+          (new-params (append
+                       (list (cons :var (cons 'sql body))
+                             (cons :var (cons 'csv_files csv_files))
+                             (cons :var (cons 'csv_files_map csv_files_map)))
+                       params))
+          (main (if (and ob-pyspark-main-file (file-exists-p ob-pyspark-main-file))
+                    (with-temp-buffer
+                      (insert-file-contents filePath)
+                      (buffer-string))
+                  org-babel-pyspark-main)))
+    (org-babel-execute:python org-babel-pyspark-main new-params)))
 
 (define-derived-mode pyspark-mode
   sql-mode "pyspark"
