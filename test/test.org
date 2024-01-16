@@ -1,19 +1,20 @@
 * test
-#+begin_src pyspark :csv_files '("Details.csv") :session pyspark :results value
+#+begin_src pyspark :csv_files '("Details.csv")
 select
     `Category`,
-    count(*)
+    count(*),
+  sum(amount)
 from Details group by `Category`
 #+end_src
 
 #+RESULTS:
-| Category    | count(1) |
-|-------------+----------|
-| Electronics |      308 |
-| Clothing    |      949 |
-| Furniture   |      243 |
+| Category    | count(1) | sum(amount) |
+|-------------+----------+-------------|
+| Electronics |      308 |      166267 |
+| Clothing    |      949 |      144323 |
+| Furniture   |      243 |      127181 |
 
-#+begin_src pyspark :csv_files '("Details.csv") :session pyspark :results value
+#+begin_src pyspark :csv_files '("Details.csv")
 desc Details
 #+end_src
 
@@ -28,14 +29,23 @@ desc Details
 | Sub-Category | string    | None    |
 | PaymentMode  | string    | None    |
 
-#+begin_src pyspark :session pyspark1 :results value
-select cast(floor(0.569 / 0.05) as int)
+#+begin_src pyspark
+select cast(5 * round(0.56987 / 0.05) as string) as a
 #+end_src
 
 #+RESULTS:
-| CAST(FLOOR((0.569 / 0.05)) AS INT) |
-|------------------------------------|
-|                                 11 |
+|  a |
+|----|
+| 55 |
+
+#+begin_src pyspark
+select format_number(100 * 0.234, 2)
+#+end_src
+
+#+RESULTS:
+| format_number((100 * 0.234), 2) |
+|---------------------------------|
+|                           23.40 |
 
 #+begin_src python :results silent :session pyspark :var sql="wer" :var x='("er" "ewio")
 print(sql)

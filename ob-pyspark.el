@@ -91,6 +91,7 @@ run()
                       (insert-file-contents ob-pyspark-main-file)
                       (buffer-string))
                   org-babel-pyspark-main)))
+    (jxq-pp params)
     (org-babel-execute:python main new-params)))
 
 (define-derived-mode pyspark-mode
