@@ -57,4 +57,5 @@ def run():
     return df_to_table(spark.sql(sql))
 
 
+print("new")
 run()

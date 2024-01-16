@@ -28,6 +28,15 @@ desc Details
 | Sub-Category | string    | None    |
 | PaymentMode  | string    | None    |
 
+#+begin_src pyspark :session pyspark1 :results value
+select cast(floor(0.569 / 0.05) as int)
+#+end_src
+
+#+RESULTS:
+| CAST(FLOOR((0.569 / 0.05)) AS INT) |
+|------------------------------------|
+|                                 11 |
+
 #+begin_src python :results silent :session pyspark :var sql="wer" :var x='("er" "ewio")
 print(sql)
 #+end_src

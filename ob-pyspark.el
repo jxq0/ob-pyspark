@@ -70,19 +70,28 @@ run()
   :type 'string
   :group 'ob-pyspark)
 
+(defcustom ob-pyspark-default-session "pyspark"
+  "The default python session."
+  :type 'string
+  :group 'ob-pyspark)
+
 (defun org-babel-execute:pyspark (body params)
-  (-let* (((&alist :csv_files :csv_files_map) params)
+  (-let* (((&alist :csv_files :csv_files_map :session) params)
+          (real-session (if (string= session "none")
+                            ob-pyspark-default-session
+                          session))
           (new-params (append
                        (list (cons :var (cons 'sql body))
                              (cons :var (cons 'csv_files csv_files))
-                             (cons :var (cons 'csv_files_map csv_files_map)))
+                             (cons :var (cons 'csv_files_map csv_files_map))
+                             (cons :session real-session))
                        params))
           (main (if (and ob-pyspark-main-file (file-exists-p ob-pyspark-main-file))
                     (with-temp-buffer
-                      (insert-file-contents filePath)
+                      (insert-file-contents ob-pyspark-main-file)
                       (buffer-string))
                   org-babel-pyspark-main)))
-    (org-babel-execute:python org-babel-pyspark-main new-params)))
+    (org-babel-execute:python main new-params)))
 
 (define-derived-mode pyspark-mode
   sql-mode "pyspark"
