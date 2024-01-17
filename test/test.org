@@ -1,5 +1,5 @@
 * test
-#+begin_src pyspark :csv_files '("Details.csv")
+#+begin_src pyspark-sql :csv_files '("Details.csv")
 select
     `Category`,
     count(*),
@@ -14,7 +14,7 @@ from Details group by `Category`
 | Clothing    |      949 |      144323 |
 | Furniture   |      243 |      127181 |
 
-#+begin_src pyspark :csv_files '("Details.csv")
+#+begin_src pyspark-sql :csv_files '("Details.csv")
 desc Details
 #+end_src
 
@@ -29,7 +29,7 @@ desc Details
 | Sub-Category | string    | None    |
 | PaymentMode  | string    | None    |
 
-#+begin_src pyspark
+#+begin_src pyspark-sql
 select cast(5 * round(0.56987 / 0.05) as string) as a
 #+end_src
 
@@ -38,7 +38,7 @@ select cast(5 * round(0.56987 / 0.05) as string) as a
 |----|
 | 55 |
 
-#+begin_src pyspark
+#+begin_src pyspark-sql
 select format_number(100 * 0.234, 2)
 #+end_src
 

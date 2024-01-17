@@ -5,7 +5,7 @@
 (require 'ob)
 (require 'ob-python)
 
-(defconst org-babel-pyspark-main "
+(defconst ob-pyspark-sql-main "
 import os
 
 def init_spark():
@@ -65,20 +65,20 @@ def run():
 run()
 ")
 
-(defcustom ob-pyspark-main-file nil
+(defcustom ob-pyspark-sql-main-file nil
   "The python code to run."
   :type 'string
-  :group 'ob-pyspark)
+  :group 'ob-pyspark-sql)
 
-(defcustom ob-pyspark-default-session "pyspark"
+(defcustom ob-pyspark-sql-default-session "pyspark-sql"
   "The default python session."
   :type 'string
-  :group 'ob-pyspark)
+  :group 'ob-pyspark-sql)
 
-(defun org-babel-execute:pyspark (body params)
+(defun org-babel-execute:pyspark-sql (body params)
   (-let* (((&alist :csv_files :csv_files_map :session) params)
           (real-session (if (string= session "none")
-                            ob-pyspark-default-session
+                            ob-pyspark-sql-default-session
                           session))
           (new-params (append
                        (list (cons :var (cons 'sql body))
@@ -86,14 +86,17 @@ run()
                              (cons :var (cons 'csv_files_map csv_files_map))
                              (cons :session real-session))
                        params))
-          (main (if (and ob-pyspark-main-file (file-exists-p ob-pyspark-main-file))
+          (main (if (and ob-pyspark-sql-main-file
+                         (file-exists-p ob-pyspark-sql-main-file))
                     (with-temp-buffer
-                      (insert-file-contents ob-pyspark-main-file)
+                      (insert-file-contents ob-pyspark-sql-main-file)
                       (buffer-string))
-                  org-babel-pyspark-main)))
-    (jxq-pp params)
+                  ob-pyspark-sql-main)))
+    (message "%s" load-file-name)
     (org-babel-execute:python main new-params)))
 
-(define-derived-mode pyspark-mode
-  sql-mode "pyspark"
+(define-derived-mode pyspark-sql-mode
+  sql-mode "pyspark-sql"
   "Major mode for pyspark sql.")
+
+(provide 'ob-pyspark-sql)
