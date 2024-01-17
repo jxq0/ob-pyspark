@@ -1,5 +1,5 @@
 * ob-pyspark-sql
 ** depends
 #+begin_src bash
-pip install pyspark pandas python-magic
+pip install pyspark pandas
 #+end_src

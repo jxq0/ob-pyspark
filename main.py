@@ -14,16 +14,25 @@ def init_spark():
     return session
 
 
-def read_csv(spark):
+def read_files(spark):
     for f in csv_files:
         file_path = f
         table_name = os.path.splitext(os.path.basename(f))[0]
+        file_extension = os.path.splitext(f)[1]
 
-        spark.read.csv(
-            file_path,
-            header=True,
-            inferSchema=True,
-        ).createOrReplaceTempView(table_name)
+        reader = spark.read
+        if file_extension == ".csv":
+            reader.csv(
+                file_path,
+                header=True,
+                inferSchema=True,
+            ).createOrReplaceTempView(table_name)
+        elif file_extension == ".json":
+            reader.json(file_path, multiLine=True).createOrReplaceTempView(
+                table_name
+            )
+        else:
+            raise ValueError("Unknown file type")
 
     if len(csv_files_map) % 2 != 0:
         raise ValueError("csv_files_map should be a list of pairs")
@@ -52,7 +61,7 @@ def df_to_table(df):
 
 def run():
     spark = init_spark()
-    read_csv(spark)
+    read_files(spark)
 
     return df_to_table(spark.sql(sql))
 
