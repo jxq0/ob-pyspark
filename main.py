@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 
 def init_spark():
@@ -8,6 +9,7 @@ def init_spark():
     session = (
         SparkSession.builder.master("local[5]")
         .config("spark.driver.bindAddress", "localhost")
+        .config("spark.network.timeout", 10000000)
         .getOrCreate()
     )
 
@@ -15,10 +17,18 @@ def init_spark():
 
 
 def read_files(spark):
-    for f in csv_files:
-        file_path = f
-        table_name = os.path.splitext(os.path.basename(f))[0]
-        file_extension = os.path.splitext(f)[1]
+    for pair_str in input_files.split(","):
+        pair = pair_str.split(":")
+        file_path = ""
+        table_name = ""
+        if len(pair) == 2:
+            file_path = pair[0]
+            table_name = pair[1]
+        else:
+            file_path = pair[0]
+            table_name = os.path.splitext(os.path.basename(file_path))[0]
+
+        file_extension = os.path.splitext(file_path)[1]
 
         reader = spark.read
         if file_extension == ".csv":
@@ -31,21 +41,11 @@ def read_files(spark):
             reader.json(file_path, multiLine=True).createOrReplaceTempView(
                 table_name
             )
+        elif file_extension in [".xlsx", "xls"]:
+            pdf = pd.read_excel(file_path)
+            spark.createDataFrame(pdf).createOrReplaceTempView(table_name)
         else:
             raise ValueError("Unknown file type")
-
-    if len(csv_files_map) % 2 != 0:
-        raise ValueError("csv_files_map should be a list of pairs")
-
-    it = iter(csv_files_map)
-    for f in it:
-        file_path = f
-        table_name = next(it)
-        spark.read.csv(
-            file_path,
-            header=True,
-            inferSchema=True,
-        ).createOrReplaceTempView(table_name)
 
 
 def df_to_table(df):

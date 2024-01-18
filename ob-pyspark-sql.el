@@ -16,14 +16,13 @@
   :group 'ob-pyspark-sql)
 
 (defun org-babel-execute:pyspark-sql (body params)
-  (-let* (((&alist :csv_files :csv_files_map :session) params)
+  (-let* (((&alist :input_files :session) params)
           (real-session (if (string= session "none")
                             ob-pyspark-sql-default-session
                           session))
           (new-params (append
                        (list (cons :var (cons 'sql body))
-                             (cons :var (cons 'csv_files csv_files))
-                             (cons :var (cons 'csv_files_map csv_files_map))
+                             (cons :var (cons 'input_files input_files))
                              (cons :session real-session))
                        params))
           (main-file (if (and ob-pyspark-sql-main-file
