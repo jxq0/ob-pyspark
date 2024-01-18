@@ -16,13 +16,16 @@
   :group 'ob-pyspark-sql)
 
 (defun org-babel-execute:pyspark-sql (body params)
-  (-let* (((&alist :input_files :session) params)
+  (-let* (((&alist :input_files :session :output_file :output_table) params)
+          (real-input-files (or input_files ""))
+          (real-output-table (or output_table ""))
           (real-session (if (string= session "none")
                             ob-pyspark-sql-default-session
                           session))
           (new-params (append
                        (list (cons :var (cons 'sql body))
-                             (cons :var (cons 'input_files input_files))
+                             (cons :var (cons 'input_files real-input-files))
+                             (cons :var (cons 'output_table real-output-table))
                              (cons :session real-session))
                        params))
           (main-file (if (and ob-pyspark-sql-main-file
@@ -34,7 +37,6 @@
           (main (with-temp-buffer
                   (insert-file-contents main-file)
                   (buffer-string))))
-    (message "%s" load-file-name)
     (org-babel-execute:python main new-params)))
 
 (define-derived-mode pyspark-sql-mode

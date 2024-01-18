@@ -61,10 +61,14 @@ def df_to_table(df):
 
 def run():
     spark = init_spark()
-    read_files(spark)
+    if input_files:
+        read_files(spark)
 
-    return df_to_table(spark.sql(sql))
+    df = spark.sql(sql)
+    if output_table:
+        df.createOrReplaceTempView(output_table)
+
+    return df_to_table(df)
 
 
-print("new")
 run()
