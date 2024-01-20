@@ -1,7 +1,10 @@
 import os
 import pandas as pd
 
-ob_pyspark_sql_dfs = {}
+try:
+    _ = ob_pyspark_sql_dfs
+except NameError:
+    ob_pyspark_sql_dfs = {}
 
 
 def init_spark():
