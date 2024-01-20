@@ -17,19 +17,37 @@
   :group 'ob-pyspark-sql)
 
 (defun ob-pyspark-sql-input-tbl (input-tables-str)
-  (mapcar (lambda (input-table)
-            (when-let* ((tbl (org-babel-ref-resolve input-table))
-                        (temp-file (make-temp-file "ob-pyspark-sql")))
-              (with-temp-file temp-file (insert (orgtbl-to-csv tbl nil)))
-              (format "%s:%s" temp-file input-table)))
-          (s-split "," input-tables-str)))
+  (--> input-tables-str
+       (s-split "," it)
+       (mapcar
+        (lambda (input-table)
+          (when-let* ((tbl (org-babel-ref-resolve input-table))
+                      (temp-file (make-temp-file "ob-pyspark-sql" nil ".csv")))
+            (with-temp-file temp-file (insert (orgtbl-to-csv tbl nil)))
+            (format "%s:%s" temp-file input-table)))
+        it)
+       (s-join "," it))
+
+  ;; (if input-tables-str
+  ;;     (s-join
+  ;;      ","
+  ;;      (mapcar (lambda (input-table)
+  ;;                (when-let* ((tbl (org-babel-ref-resolve input-table))
+  ;;                            (temp-file (make-temp-file "ob-pyspark-sql" nil ".csv")))
+  ;;                  (with-temp-file temp-file (insert (orgtbl-to-csv tbl nil)))
+  ;;                  (format "%s:%s" temp-file input-table)))
+  ;;              (s-split "," input-tables-str))))
+  )
 
 (defun org-babel-execute:pyspark-sql (body params)
   (-let* (((&alist :input_files :input_tables
                    :session :output_file :output_table)
            params)
           (input-tables-files (ob-pyspark-sql-input-tbl input_tables))
-          (real-input-files (or input_files ""))
+          (real-input-files
+           (jxq-pp (s-join "," (delq nil
+                                     (list input_files input-tables-files)))
+                   "real-input-files"))
           (real-output-table (or output_table ""))
           (real-session (if (string= session "none")
                             ob-pyspark-sql-default-session
