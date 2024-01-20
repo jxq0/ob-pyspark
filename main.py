@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 
+ob_pyspark_sql_dfs = {}
+
 
 def init_spark():
     from pyspark.sql import SparkSession
@@ -59,6 +61,10 @@ def df_to_table(df):
     return table
 
 
+def get_ob_df(tbl):
+    return ob_pyspark_sql_dfs[tbl]
+
+
 def run():
     spark = init_spark()
     if input_files:
@@ -67,6 +73,7 @@ def run():
     df = spark.sql(sql)
     if output_table:
         df.createOrReplaceTempView(output_table)
+        ob_pyspark_sql_dfs[output_table] = df
 
     return df_to_table(df)
 

@@ -2,6 +2,7 @@
 (org-assert-version)
 
 (require 'dash)
+(require 's)
 (require 'ob)
 (require 'ob-python)
 
@@ -15,8 +16,19 @@
   :type 'string
   :group 'ob-pyspark-sql)
 
+(defun ob-pyspark-sql-input-tbl (input-tables-str)
+  (mapcar (lambda (input-table)
+            (when-let* ((tbl (org-babel-ref-resolve input-table))
+                        (temp-file (make-temp-file "ob-pyspark-sql")))
+              (with-temp-file temp-file (insert (orgtbl-to-csv tbl nil)))
+              (format "%s:%s" temp-file input-table)))
+          (s-split "," input-tables-str)))
+
 (defun org-babel-execute:pyspark-sql (body params)
-  (-let* (((&alist :input_files :session :output_file :output_table) params)
+  (-let* (((&alist :input_files :input_tables
+                   :session :output_file :output_table)
+           params)
+          (input-tables-files (ob-pyspark-sql-input-tbl input_tables))
           (real-input-files (or input_files ""))
           (real-output-table (or output_table ""))
           (real-session (if (string= session "none")

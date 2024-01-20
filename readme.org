@@ -3,3 +3,8 @@
 #+begin_src bash
 pip install pyspark pandas
 #+end_src
+** read from org mode tables
+** process dataframes in python
+#+begin_src python :results silent
+get_df("")
+#+end_src
