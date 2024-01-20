@@ -17,27 +17,15 @@
   :group 'ob-pyspark-sql)
 
 (defun ob-pyspark-sql-input-tbl (input-tables-str)
-  (--> input-tables-str
-       (s-split "," it)
+  (->> input-tables-str
+       (s-split ",")
        (mapcar
         (lambda (input-table)
           (when-let* ((tbl (org-babel-ref-resolve input-table))
                       (temp-file (make-temp-file "ob-pyspark-sql" nil ".csv")))
             (with-temp-file temp-file (insert (orgtbl-to-csv tbl nil)))
-            (format "%s:%s" temp-file input-table)))
-        it)
-       (s-join "," it))
-
-  ;; (if input-tables-str
-  ;;     (s-join
-  ;;      ","
-  ;;      (mapcar (lambda (input-table)
-  ;;                (when-let* ((tbl (org-babel-ref-resolve input-table))
-  ;;                            (temp-file (make-temp-file "ob-pyspark-sql" nil ".csv")))
-  ;;                  (with-temp-file temp-file (insert (orgtbl-to-csv tbl nil)))
-  ;;                  (format "%s:%s" temp-file input-table)))
-  ;;              (s-split "," input-tables-str))))
-  )
+            (format "%s:%s" temp-file input-table))))
+       (s-join ",")))
 
 (defun org-babel-execute:pyspark-sql (body params)
   (-let* (((&alist :input_files :input_tables
