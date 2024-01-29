@@ -1,11 +1,6 @@
 import os
 import pandas as pd
 
-try:
-    _ = ob_pyspark_sql_dfs
-except NameError:
-    ob_pyspark_sql_dfs = {}
-
 
 def init_spark():
     from pyspark.sql import SparkSession
@@ -64,8 +59,9 @@ def df_to_table(df):
     return table
 
 
-def get_ob_df(tbl):
-    return ob_pyspark_sql_dfs[tbl]
+def get_df(tbl):
+    spark = init_spark()
+    return spark.sql(f"select * from {tbl}")
 
 
 def run():
@@ -76,7 +72,6 @@ def run():
     df = spark.sql(sql)
     if output_table:
         df.createOrReplaceTempView(output_table)
-        ob_pyspark_sql_dfs[output_table] = df
 
     return df_to_table(df)
 
