@@ -64,6 +64,21 @@ def get_df(tbl):
     return spark.sql(f"select * from {tbl}")
 
 
+def output_to_file(df, file_path):
+    file_extension = os.path.splitext(file_path)[1]
+
+    writer = df.write
+    if file_extension == ".csv":
+        writer.option("header", True).csv(file_path)
+    elif file_extension == ".json":
+        writer.json(file_path)
+    elif file_extension in [".xlsx", "xls"]:
+        pdf = df.toPandas()
+        pdf.to_excel(file_path)
+    else:
+        raise ValueError("Unknown file type")
+
+
 def run():
     spark = init_spark()
     if input_files:
@@ -72,6 +87,9 @@ def run():
     df = spark.sql(sql)
     if output_table:
         df.createOrReplaceTempView(output_table)
+
+    if output_file:
+        output_to_file(df, output_file)
 
     return df_to_table(df)
 
