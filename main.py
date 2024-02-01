@@ -68,13 +68,13 @@ def output_to_file(df, file_path):
     file_extension = os.path.splitext(file_path)[1]
 
     writer = df.write
+    pdf = df.toPandas()
     if file_extension == ".csv":
-        writer.option("header", True).csv(file_path)
+        pdf.to_csv(file_path, index=False)
     elif file_extension == ".json":
-        writer.json(file_path)
+        pdf.to_json(file_path, orient="records")
     elif file_extension in [".xlsx", "xls"]:
-        pdf = df.toPandas()
-        pdf.to_excel(file_path)
+        pdf.to_excel(file_path, index=False)
     else:
         raise ValueError("Unknown file type")
 
