@@ -36,6 +36,22 @@
 (require 'ob)
 (require 'ob-python)
 
+(defcustom ob-pyspark-sql-init-file nil
+  "The python code to run."
+  :type 'string
+  :group 'ob-pyspark-sql)
+
+(defvar ob-pyspark-sql-init-file-evaluated nil
+  "Whether ob-pyspark-sql-init-file has been evalutated.")
+
+(defcustom ob-pyspark-sql-udf-file nil
+  "The python code to run."
+  :type 'string
+  :group 'ob-pyspark-sql)
+
+(defvar ob-pyspark-sql-udf-file-evaluated nil
+  "Whether ob-pyspark-sql-udf-file has been evalutated.")
+
 (defcustom ob-pyspark-sql-main-file nil
   "The python code to run."
   :type 'string
@@ -45,6 +61,29 @@
   "The default python session."
   :type 'string
   :group 'ob-pyspark-sql)
+
+(defun ob-pyspark-sql-get-python-file (file-type)
+  (let* ((default-file-var
+          (pcase file-type
+            ('main (list "main.py" ob-pyspark-sql-main-file t))
+            ('init (list "init.py" ob-pyspark-sql-init-file
+                         (not ob-pyspark-sql-init-file-evaluated)))
+            ('udf (list "udf.py" ob-pyspark-sql-udf-file
+                        (not ob-pyspark-sql-udf-file-evaluated)))
+            (_ (error "invalid file type %s" file-type))))
+         (file-name (car default-file-var))
+         (custom-var (nth 1 default-file-var))
+         (need-eval (nth 2 default-file-var))
+         (real-file-name (if (and custom-var (file-exists-p custom-var))
+                             custom-var
+                           (concat (file-name-directory
+                                    (symbol-file 'org-babel-execute:pyspark-sql))
+                                   file-name))))
+    (if need-eval
+        (with-temp-buffer
+          (insert-file-contents real-file-name)
+          (buffer-string))
+      "")))
 
 (defun ob-pyspark-sql-input-tbl (input-tables-str)
   (if input-tables-str
@@ -72,21 +111,17 @@
                             ob-pyspark-sql-default-session
                           session))
           (new-params (append
-                       (list (cons :var (cons 'sql body))
+                       (list (list :var (cons 'sql body))
                              (cons :var (cons 'input_files real-input-files))
                              (cons :var (cons 'output_table real-output-table))
                              (cons :var (cons 'output_file real-output-file))
                              (cons :session real-session))
                        params))
-          (main-file (if (and ob-pyspark-sql-main-file
-                              (file-exists-p ob-pyspark-sql-main-file))
-                         ob-pyspark-sql-main-file
-                       (concat (file-name-directory
-                                (symbol-file 'org-babel-execute:pyspark-sql))
-                               "main.py")))
-          (main (with-temp-buffer
-                  (insert-file-contents main-file)
-                  (buffer-string))))
+
+          (python-code (format "%s\n%s\n%s"
+                               (ob-pyspark-sql-get-python-file 'init)
+                               (ob-pyspark-sql-get-python-file 'udf)
+                               (ob-pyspark-sql-get-python-file 'main))))
     (org-babel-execute:python main new-params)))
 
 (define-derived-mode pyspark-sql-mode
