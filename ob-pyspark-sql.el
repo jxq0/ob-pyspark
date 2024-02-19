@@ -111,7 +111,7 @@
                             ob-pyspark-sql-default-session
                           session))
           (new-params (append
-                       (list (list :var (cons 'sql body))
+                       (list (cons :var (cons 'sql body))
                              (cons :var (cons 'input_files real-input-files))
                              (cons :var (cons 'output_table real-output-table))
                              (cons :var (cons 'output_file real-output-file))
@@ -122,7 +122,7 @@
                                (ob-pyspark-sql-get-python-file 'init)
                                (ob-pyspark-sql-get-python-file 'udf)
                                (ob-pyspark-sql-get-python-file 'main))))
-    (org-babel-execute:python main new-params)))
+    (org-babel-execute:python python-code new-params)))
 
 (define-derived-mode pyspark-sql-mode
   sql-mode "pyspark-sql"
