@@ -41,6 +41,10 @@ def read_files(spark):
             reader.json(file_path, multiLine=True).createOrReplaceTempView(
                 table_name
             )
+        elif file_extension == ".jsonl":
+            reader.json(file_path, multiLine=None).createOrReplaceTempView(
+                table_name
+            )
         elif file_extension in [".xlsx", "xls"]:
             pdf = pd.read_excel(file_path)
             spark.createDataFrame(pdf).createOrReplaceTempView(table_name)
