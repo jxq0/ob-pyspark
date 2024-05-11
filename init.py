@@ -37,6 +37,10 @@ def read_files(spark):
                 header=True,
                 inferSchema=True,
             ).createOrReplaceTempView(table_name)
+        elif file_extension == ".tsv":
+            reader.csv(
+                file_path, header=True, inferSchema=True, sep="\t"
+            ).createOrReplaceTempView(table_name)
         elif file_extension == ".json":
             reader.json(file_path, multiLine=True).createOrReplaceTempView(
                 table_name
