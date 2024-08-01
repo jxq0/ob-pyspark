@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import json
 
 
 def init_spark():
@@ -87,12 +88,42 @@ def output_to_file(df, file_path):
         raise ValueError("Unknown file type")
 
 
+def translate_enum_value(df, enum_val):
+    with open(enum_files_json, "r") as file:
+        data = json.load(file)
+
+        for row in data:
+            enum_df = (
+                spark.read.csv(
+                    row["file"],
+                    header=True,
+                    inferSchema=True,
+                )
+                .withColumnRenamed(row["key_column"], "key")
+                .withColumnRenamed(row["value_column"], "value")
+            )
+
+            enum_df.createOrReplaceTempView(row["table"])
+
+    for pair_str in enum_val.split(","):
+        pair = pair_str.split(":")
+        if len(pair) != 2:
+            raise ValueError(f"invalid enum_val {enum_val}")
+
+        enum_table = pair[0]
+        column = pair[1]
+
+
 def run():
     spark = init_spark()
     if input_files:
         read_files(spark)
 
     df = spark.sql(sql)
+
+    if enum_val:
+        translate_enum_value(df, enum_val)
+
     if output_table:
         df.createOrReplaceTempView(output_table)
 

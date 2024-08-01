@@ -62,6 +62,11 @@
   :type 'string
   :group 'ob-pyspark-sql)
 
+(defcustom ob-pyspark-sql-enum-files nil
+  "The default python session."
+  :type 'string
+  :group 'ob-pyspark-sql)
+
 (defun ob-pyspark-sql-get-python-file (file-type)
   (let* ((default-file-var
           (pcase file-type
@@ -99,7 +104,8 @@
 
 (defun org-babel-execute:pyspark-sql (body params)
   (-let* (((&alist :input-files :input-tables
-                   :session :output-file :output-table)
+                   :session :output-file :output-table
+                   :enum)
            params)
           (input-tables-files (ob-pyspark-sql-input-tbl input-tables))
           (real-input-files
@@ -115,6 +121,10 @@
                              (cons :var (cons 'input_files real-input-files))
                              (cons :var (cons 'output_table real-output-table))
                              (cons :var (cons 'output_file real-output-file))
+                             (cons :var (cons 'enum_val enum))
+                             (cons :var
+                                   (cons 'enum_files_json
+                                         ob-pyspark-sql-enum-files))
                              (cons :session real-session))
                        params))
 
