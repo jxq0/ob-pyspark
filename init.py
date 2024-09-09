@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from datetime import datetime
 
 
 def init_spark():
@@ -62,7 +63,14 @@ def df_to_table(df):
     table.append(None)
 
     for row in df.collect():
-        table.append([row[col] for col in df.columns])
+        line = []
+        for col in df.columns:
+            val = row[col]
+            if isinstance(val, datetime):
+                val = val.strftime("%Y-%m-%d %H:%M:%S")
+            line.append(val)
+
+        table.append(line)
 
     return table
 
