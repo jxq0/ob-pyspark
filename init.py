@@ -34,9 +34,7 @@ def read_files(spark):
         reader = spark.read
         if file_extension == ".csv":
             reader.csv(
-                file_path,
-                header=True,
-                inferSchema=True,
+                file_path, header=True, inferSchema=True, quote='"', escape='"'
             ).createOrReplaceTempView(table_name)
         elif file_extension == ".tsv":
             reader.csv(
